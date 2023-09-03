@@ -2,7 +2,7 @@
 import { Poppins, Montserrat } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 const poppins = Poppins({
   display: "swap",
   subsets: ["latin"],
@@ -20,11 +20,11 @@ export default function Modal() {
     <motion.div
       className=" w-[90%] md:w-[60%]  xl:h-[60%] absolute rounded-lg p-10 flex flex-col backdrop-blur-md backdrop-brightness-100  bg-black/30"
       animate={{
-        scale: [0, 0.5, 1, 1.05, 1.1, 1.05, 1],
+        top: "20%",
         opacity: 1,
       }}
-      initial={{ scale: 0, opacity: 0 }}
-      transition={{ duration: 1, type: "spring", stiffness: 200 }}
+      initial={{ top: "0%", opacity: 0 }}
+      transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
     >
       <div
         className={`flex flex-col items-center justify-center ${poppins.className} gap-4`}
@@ -75,7 +75,7 @@ export default function Modal() {
               Log In
             </button>
             <Link
-              href="/"
+              href="/register"
               className="ml-1 text-[14px] xl:text-[0.85vw] text-blue-300 font-semibold"
             >
               Need an account ?
