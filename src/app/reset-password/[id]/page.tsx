@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
 import Image from "next/image";
+import React from "react";
 import Modal from "./components/Modal";
-export const metadata: Metadata = {
-  title: "Register",
-};
-
-export default function Page() {
+function page() {
   return (
     <section className="w-full h-[100vh] xl:h-[120vh] relative flex items-center justify-center overflow-hidden">
       <Image
@@ -18,3 +14,5 @@ export default function Page() {
     </section>
   );
 }
+
+export default page;
