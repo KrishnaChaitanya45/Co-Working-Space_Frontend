@@ -21,6 +21,7 @@ const Input = ({
   value,
   propName,
   setValueFocus,
+  checkNeeded,
   isPassword,
   valueFocus,
   valueMessage,
@@ -35,6 +36,7 @@ const Input = ({
   value: string;
   setValueFocus: any;
   isPassword?: boolean;
+  checkNeeded: boolean;
   valueFocus: boolean;
   valueMessage: string;
   displayNeeded?: boolean;
@@ -50,21 +52,23 @@ const Input = ({
         <label className="text-white/60 text-[14px] md:text-[16px] xl:text-[0.85vw] font-semibold ml-1">
           {propName}
         </label>
-        <span
-          className={
-            (
-              validValue == undefined
-                ? value.length > 5 &&
-                  isConfirmPasswordEqualsPassword != undefined &&
-                  isConfirmPasswordEqualsPassword
-                : validValue
-            )
-              ? "text-[24px] text-green-600"
-              : "hidden"
-          }
-        >
-          <FontAwesomeIcon icon={faCheck} />
-        </span>
+        {checkNeeded != undefined && checkNeeded == true && (
+          <span
+            className={
+              (
+                validValue == undefined
+                  ? value.length > 5 &&
+                    isConfirmPasswordEqualsPassword != undefined &&
+                    isConfirmPasswordEqualsPassword
+                  : validValue
+              )
+                ? "text-[24px] text-green-600"
+                : "hidden"
+            }
+          >
+            <FontAwesomeIcon icon={faCheck} />
+          </span>
+        )}
       </div>
       <div className="relative w-[100%]">
         <input

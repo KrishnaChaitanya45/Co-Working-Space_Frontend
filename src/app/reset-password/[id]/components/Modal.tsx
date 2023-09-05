@@ -24,6 +24,7 @@ import axios, { AxiosError } from "axios";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setAuth } from "@/redux/features/Auth";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
 const poppins = Poppins({
   display: "swap",
@@ -54,6 +55,7 @@ export default function Modal() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordFocus, setConfirmPasswordFocus] = useState(false);
   const [confirmValidPassword, setConfirmValidPassword] = useState(false);
+  const axiosWithAccessToken = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
 
@@ -83,12 +85,11 @@ export default function Modal() {
     setErrorMessage("");
   }, [confirmPassword, password]);
   useEffect(() => {
-    console.log(auth);
-    // if (searchParams.id == auth.user.id) {
-    //   console.log(true);
-    // } else {
-    //   console.log(false);
-    // }
+    if (auth.user) {
+      if (!searchParams.id == auth.user._id) {
+        router.push("/");
+      }
+    } else router.push("/");
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -116,47 +117,53 @@ export default function Modal() {
       });
       return;
     }
-
+    if (password != confirmPassword) {
+      errorRef?.current?.({
+        msg: "Passwords don't match",
+        title: "Passwords don't match",
+        type: "error",
+      });
+      return;
+    }
     errorRef?.current?.({
       title: "Request sent to your servers..!✅",
       msg: "Please wait while we create your account..! 🔥",
       type: "info",
     });
-    // try {
-    //   const response = await axiosPrivate.post(
-    //     "/auth/register",
-    //     {
-    //       username,
-    //       displayname: displayName,
-    //       email,
-    //       password,
-    //     },
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-    //   if (response.status == 201) {
-    //     errorRef?.current?.({
-    //       title: "Account Created ✅ , Verification Pending ⭐",
-    //       msg: "Your account has been created successfully 😄, we've sent you a verification code to your mail...!",
-    //       type: "success",
-    //     });
-    //     const accessToken = response.data.tokens.accessToken;
-    //     const user = response.data.user;
-    //     dispatch(setAuth({ accessToken, user }));
-    //   }
-    //   setNextStep(2);
-    // } catch (error: any) {
-    //   console.log(error.response.status);
-    //   if (error.response.status == 409)
-    //     errorRef?.current?.({
-    //       title: "User Already Exists",
-    //       msg: "username or email you entered is already taken 😄",
-    //       type: "error",
-    //     });
-    // }
+    try {
+      const response = await axiosWithAccessToken.post(
+        "/auth/reset-password",
+        {
+          password,
+          userId: auth.user._id,
+          confirmPassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status == 200) {
+        errorRef?.current?.({
+          title: "Password Changed ✅ ",
+          msg: "Your account password has been changed successfully 😄, try not to forget again 😉...!",
+          type: "success",
+        });
+      }
+      setTimeout(() => {
+        router.push("/login");
+      }, 3000);
+    } catch (error: any) {
+      console.log(error);
+      if (error.response.status == 400) {
+        errorRef?.current?.({
+          title: "User not found 😕",
+          msg: "We cannot find you... 🔍",
+          type: "error",
+        });
+      }
+    }
   };
   const passwordsMatch = password == confirmPassword;
   console.log(passwordsMatch && validPassword);
@@ -216,7 +223,7 @@ export default function Modal() {
             >
               <button
                 type="submit"
-                disabled={validPassword && passwordsMatch ? true : false}
+                disabled={validPassword && passwordsMatch ? false : true}
                 className={`w-[100%] bg-theme_purple p-[10px] md:p-[1vw] rounded-lg text-white font-medium text-[20px] xl:text-[1.25vw] ${
                   validPassword && passwordsMatch ? "opacity-100" : "opacity-50"
                 }`}

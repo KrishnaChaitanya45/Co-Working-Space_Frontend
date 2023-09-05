@@ -4,7 +4,11 @@ export const store = configureStore({
   reducer: {
     auth: AuthReducer,
   },
-  devTools: process.env.NODE_ENV ? process.env.NODE_ENV !== "production" : true,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+  devTools: process.env.NODE_ENV == "production" ? false : true,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

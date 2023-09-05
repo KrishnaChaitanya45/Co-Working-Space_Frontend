@@ -24,6 +24,7 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setAuth } from "@/redux/features/Auth";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
 const poppins = Poppins({
   display: "swap",
@@ -62,11 +63,11 @@ export default function Modal() {
   const [validPassword, setValidPassword] = useState(false);
 
   const [open, setOpen] = useState(false);
-
+  const axiosWithAccessToken = useAxiosPrivate();
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [nextStep, setNextStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -177,7 +178,7 @@ export default function Modal() {
           type: "error",
         });
     }
-    setNextStep(2);
+    // setNextStep(2);
   };
 
   const handleKeyDown = (e: any, index: number) => {
@@ -193,6 +194,7 @@ export default function Modal() {
   const handleInputChange = (e: any, index: number) => {
     // Handle your input change logic here
     e.preventDefault();
+    setIsError(false);
     console.log(e.target.value);
     const val = e?.target?.value;
     console.log(val);
@@ -202,7 +204,7 @@ export default function Modal() {
     console.log(val.length);
     if (val.length < 1) {
       const otpCopy = [...otp];
-      otpCopy[index] = "-";
+      otpCopy[index] = "";
       console.log(otpCopy);
       setOtp(otpCopy);
     } else {
@@ -235,7 +237,7 @@ export default function Modal() {
         msg: "Please wait while we verify your account..!",
         type: "info",
       });
-      const response = await axiosPrivate.post(
+      const response = await axiosWithAccessToken.post(
         "/auth/otp/verify",
         {
           otp: Number(otp.join("")),
@@ -247,16 +249,19 @@ export default function Modal() {
           },
         }
       );
+      setIsError(false);
       errorRef?.current?.({
         title: response.data.title,
         msg: response.data.message,
         type: "success",
       });
       setTimeout(() => {
-        router.push("/");
+        router.push("/profile-pic");
       }, 2000);
     } catch (error: any) {
       console.log(error);
+      setIsError(true);
+      setOtp(["", "", "", ""]);
       errorRef?.current?.({
         title: error.response.data.title,
         msg: error.response.data.message,
@@ -435,37 +440,97 @@ export default function Modal() {
             </p>
           </div>
           <div className="flex items-center mt-8 gap-4">
-            <input
+            <motion.input
               type="text"
               value={otp[0].toString()}
               ref={(ref) => addInputRef(ref, 0)}
               onChange={(e) => handleInputChange(e, 0)}
               maxLength={1}
-              className="w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60"
+              animate={{
+                translateX: isError
+                  ? [-10, 0, 10, -10, 0, 10, 0]
+                  : [0, 0, 0, 0, 0, 0, 0],
+              }}
+              initial={{
+                translateX: [0, 0, 0, 0, 0, 0, 0],
+              }}
+              transition={{
+                duration: 0.5,
+                stiffness: 100,
+                type: "spring",
+              }}
+              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+                isError ? "border-theme_red" : "border-white"
+              }`}
             />
-            <input
+            <motion.input
               type="text"
               value={otp[1].toString()}
               ref={(ref) => addInputRef(ref, 1)}
               onChange={(e) => handleInputChange(e, 1)}
               maxLength={1}
-              className="w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60"
+              animate={{
+                translateX: isError
+                  ? [-10, 0, 10, -10, 0, 10, 0]
+                  : [0, 0, 0, 0, 0, 0, 0],
+              }}
+              initial={{
+                translateX: [0, 0, 0, 0, 0, 0, 0],
+              }}
+              transition={{
+                duration: 0.5,
+                stiffness: 100,
+                type: "spring",
+              }}
+              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+                isError ? "border-theme_red" : "border-white"
+              }`}
             />
-            <input
+            <motion.input
               type="text"
               value={otp[2].toString()}
               ref={(ref) => addInputRef(ref, 2)}
               onChange={(e) => handleInputChange(e, 2)}
               maxLength={1}
-              className="w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.2vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60"
+              animate={{
+                translateX: isError
+                  ? [-10, 0, 10, -10, 0, 10, 0]
+                  : [0, 0, 0, 0, 0, 0, 0],
+              }}
+              initial={{
+                translateX: [0, 0, 0, 0, 0, 0, 0],
+              }}
+              transition={{
+                duration: 0.5,
+                stiffness: 100,
+                type: "spring",
+              }}
+              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+                isError ? "border-theme_red" : "border-white"
+              }`}
             />
-            <input
+            <motion.input
               type="text"
               value={otp[3].toString()}
               ref={(ref) => addInputRef(ref, 3)}
               onChange={(e) => handleInputChange(e, 3)}
               maxLength={1}
-              className="w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60"
+              animate={{
+                translateX: isError
+                  ? [-10, 0, 10, -10, 0, 10, 0]
+                  : [0, 0, 0, 0, 0, 0, 0],
+              }}
+              initial={{
+                translateX: [0, 0, 0, 0, 0, 0, 0],
+              }}
+              transition={{
+                duration: 0.5,
+                stiffness: 100,
+                type: "spring",
+              }}
+              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+                isError ? "border-theme_red" : "border-white"
+              }`}
             />
           </div>
           <button

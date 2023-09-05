@@ -7,9 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
 import { axiosPrivate } from "@/api/axios";
+import { PASSWORD_REGEX } from "@/utils/userRegex";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import NotificationGenerator from "@/components/ToastMessage";
 import { setAuth } from "@/redux/features/Auth";
+import useRefreshToken from "@/hooks/useRefreshToken";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 const poppins = Poppins({
   display: "swap",
   subsets: ["latin"],
@@ -26,8 +29,9 @@ type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 export default function Modal() {
   const userRef = useRef(null);
   const errRef = useRef(null);
-
+  const axiosWithAccessToken = useAxiosPrivate();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [validUsernameOrEmail, setValidUsernameOrEmail] = useState(false);
@@ -45,6 +49,7 @@ export default function Modal() {
     setErrorMessage("");
   }, [usernameOrEmail, password]);
   const auth = useAppSelector((state) => state.auth.auth);
+  const refresh = useRefreshToken();
   const handleKeyDown = (e: any, index: number) => {
     if (e.key === "Enter") {
       const nextIndex = index + 1;
@@ -95,7 +100,6 @@ export default function Modal() {
   const errorRef = useRef(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [userId, setUserId] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const isMobile = navigator.userAgent.match("Mobile");
   const handleVerify = async () => {
@@ -105,27 +109,31 @@ export default function Modal() {
         msg: "Please wait while we verify your account..!",
         type: "info",
       });
-      const response = await axiosPrivate.post(
-        "/auth/otp/verify",
-        {
-          otp: Number(otp.join("")),
-          userId: userId,
-          forResetPassword: true,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+
+      if (userId) {
+        const response = await axiosWithAccessToken.post(
+          "/auth/otp/verify",
+          {
+            otp: Number(otp.join("")),
+            usernameOrEmail: usernameOrEmail,
+            forResetPassword: true,
           },
-        }
-      );
-      errorRef?.current?.({
-        title: response.data.title,
-        msg: response.data.message,
-        type: "success",
-      });
-      setTimeout(() => {
-        router.push(`/reset-password/${userId}`);
-      }, 2000);
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        errorRef?.current?.({
+          title: response.data.title,
+          msg: response.data.message,
+          type: "success",
+        });
+
+        setTimeout(() => {
+          router.push(`/reset-password/${userId}`);
+        }, 2000);
+      }
     } catch (error: any) {
       console.log(error);
       errorRef?.current?.({
@@ -135,7 +143,15 @@ export default function Modal() {
       });
     }
   };
-
+  useEffect(() => {
+    if (usernameOrEmail.length > 3) {
+      setValidUsernameOrEmail(true);
+    }
+  }, [usernameOrEmail]);
+  useEffect(() => {
+    const result = PASSWORD_REGEX.test(password);
+    setValidPassword(result);
+  }, [password]);
   const handleResend = async () => {
     try {
       if (usernameOrEmail.length < 1) {
@@ -151,7 +167,7 @@ export default function Modal() {
         msg: "Please wait while we find you and send you an OTP ..!",
         type: "info",
       });
-      const response = await axiosPrivate.post("/auth/otp/resend", {
+      const response = await axiosWithAccessToken.post("/auth/otp/resend", {
         usernameOrEmail: usernameOrEmail,
         forResetPassword: true,
       });
@@ -160,13 +176,14 @@ export default function Modal() {
         msg: response.data.message,
         type: "success",
       });
+      console.log("== AUTH DATA ==", response.data);
       dispatch(
         setAuth({
           user: response.data.user,
           accessToken: "",
         })
       );
-      setUserId(response.data.userId);
+      setUserId(response.data.user._id);
       setNextStep(2);
     } catch (error: any) {
       console.log(error);
@@ -179,14 +196,64 @@ export default function Modal() {
   };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  };
-  useEffect(() => {
-    errorRef.current?.({
-      title: "Welcome Back..!",
-      msg: "We're so excited to see you again..!",
+    e.preventDefault();
+    const v2 = PASSWORD_REGEX.test(password);
+
+    if (!v2) {
+      //@ts-ignore
+
+      errorRef?.current?.({
+        msg: "Invalid Password",
+        title: "Invalid Password",
+        type: "error",
+      });
+      return;
+    }
+
+    errorRef?.current?.({
+      title: "Request sent to your servers..!✅",
+      msg: "Please wait while we create your account..! 🔥",
       type: "info",
     });
-  }, []);
+    try {
+      const response = await axiosPrivate.post(
+        "/auth/login",
+        {
+          emailOrUsername: usernameOrEmail,
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      if (response.status == 201) {
+        errorRef?.current?.({
+          title: "Login Successful ✅ ",
+          msg: "Your have logged in  successfully 😄, redirecting to the homepage",
+          type: "success",
+        });
+        const accessToken = response.data.tokens.accessToken;
+        const user = response.data.user;
+        dispatch(setAuth({ accessToken, user }));
+      }
+      setTimeout(() => {
+        router.push("/home");
+      }, 2000);
+    } catch (error: any) {
+      console.log(error);
+      console.log(error.response.status);
+      if (error.response.status == 401)
+        errorRef?.current?.({
+          title: "Invalid Credentials Provided",
+          msg: "Please check your credentials and try again..!",
+          type: "error",
+        });
+    }
+  };
+
   return (
     <>
       <div>
@@ -230,6 +297,7 @@ export default function Modal() {
               valueMessage="Enter Your Registered Email or Username"
               validValue={validUsernameOrEmail}
               valueRef={userRef}
+              checkNeeded={false}
             />
             <Input
               propName="PASSWORD"
@@ -241,6 +309,7 @@ export default function Modal() {
               validValue={validPassword}
               isPassword={true}
               displayNeeded={false}
+              checkNeeded={false}
             />
             <button
               className="ml-1 text-[14px] xl:text-[0.85vw] text-blue-300 font-semibold"
@@ -252,7 +321,12 @@ export default function Modal() {
               className={`flex flex-col gap-2 max-w-[100%] mt-[1.5rem] ${montserrat.className}`}
             >
               <button
-                className="w-[100%] bg-theme_purple p-[10px] md:p-[1vw] rounded-lg text-white font-medium text-[20px] xl:text-[1vw]"
+                disabled={validUsernameOrEmail && validPassword ? false : true}
+                className={`w-[100%] bg-theme_purple p-[10px] md:p-[1vw] rounded-lg text-white font-medium text-[20px] xl:text-[1vw] ${
+                  validUsernameOrEmail && validPassword
+                    ? "opacity-100"
+                    : "opacity-50"
+                }`}
                 type="submit"
               >
                 Log In
