@@ -27,11 +27,7 @@ const persistLogin = ({ children }: { children: any }) => {
     }
     return () => (isMounted = false);
   }, []);
-  useEffect(() => {
-    console.log("IS LOADING", isLoading);
-    console.log("AUTH", auth);
-  }, [isLoading]);
-  return <>{isLoading ? <p>Loading..!</p> : children}</>;
+  return <>{isLoading ? <div>Loading</div> : <div>{children}</div>}</>;
 };
 
 export default persistLogin;
