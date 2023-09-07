@@ -9,7 +9,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default function random() {
   return (
-    <div className="bg-[#202225] w-[7.5%] h-[100%] flex flex-col items-center pt-[2.5%] pb-[2.5%] justify-between absolute z-[100]">
+    <div className="bg-[#202225] w-[7.5%] h-[100%] flex flex-col items-center pt-[2.5%] pb-[2.5%] justify-between">
       <div className="flex flex-col items-center justify-center gap-[2.5vh]">
         <div className="bg-[#36393F] w-[5vw] h-[10vh] rounded-[100%] flex items-center justify-center">
           <div className="w-[90%] h-[90%] relative">

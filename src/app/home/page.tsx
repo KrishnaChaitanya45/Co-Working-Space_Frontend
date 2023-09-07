@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import { Poppins } from "next/font/google";
+import Channels from "./components/Channels";
 
 const Servers = dynamic(() => import("./components/Servers"), {
   ssr: false,
@@ -16,11 +17,12 @@ const poppins = Poppins({
 const page = () => {
   return (
     <div
-      className={`bg-[#37393F] w-full h-[100vh] relative ${poppins.className}`}
+      className={`bg-[#37393F] w-full h-[100vh] relative ${poppins.className} flex`}
     >
       {" "}
-      <Navbar />
       <Servers />
+      <Channels />
+      <Navbar />
     </div>
   );
 };

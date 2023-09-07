@@ -212,7 +212,7 @@ export default function Modal() {
 
     errorRef?.current?.({
       title: "Request sent to your servers..!✅",
-      msg: "Please wait while we create your account..! 🔥",
+      msg: "Please wait while we fetch your account..! 🔥",
       type: "info",
     });
     try {
@@ -264,7 +264,7 @@ export default function Modal() {
         />
       </div>
       <motion.div
-        className=" w-[90%] md:w-[60%]  xl:h-[60%] absolute rounded-lg p-10 flex flex-col backdrop-blur-md backdrop-brightness-100  bg-black/30"
+        className=" w-[90%] md:w-[60%]  absolute rounded-lg p-10 flex flex-col backdrop-blur-md backdrop-brightness-100  bg-black/30"
         animate={{
           top: "20%",
           opacity: 1,
