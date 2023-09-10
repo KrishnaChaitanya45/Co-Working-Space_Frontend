@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import AuthReducer from "./features/Auth";
 import PeerActions from "./features/PeerActions";
+import Servers from "./features/Servers";
 export const store = configureStore({
   reducer: {
     auth: AuthReducer,
     peer: PeerActions,
+    server: Servers,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
