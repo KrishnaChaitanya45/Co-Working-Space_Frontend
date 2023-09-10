@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import { Poppins } from "next/font/google";
 import Channel from "./components/Channels";
-
 const Servers = dynamic(() => import("./components/Servers"), {
   ssr: false,
 });
@@ -14,7 +13,9 @@ const poppins = Poppins({
   weight: ["400", "600", "700"],
   style: ["normal", "italic"],
 });
+const WS = "http://localhost:5000";
 const page = () => {
+  useEffect(() => {}, []);
   return (
     <div
       className={`bg-[#37393F] w-full h-[100vh] flex relative ${poppins.className}`}
