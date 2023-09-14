@@ -18,7 +18,7 @@ const page = () => {
   useEffect(() => {}, []);
   return (
     <div
-      className={`bg-[#37393F] w-full h-[100vh] flex relative ${poppins.className}`}
+      className={`bg-[#37393F] w-full h-[100vh] overflow-auto flex relative ${poppins.className}`}
     >
       {" "}
       <Servers />

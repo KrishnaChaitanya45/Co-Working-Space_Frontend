@@ -2,7 +2,7 @@
 import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuid } from "uuid";
-const WS = "http://localhost:5000";
+const WS = "http://localhost:5000/calls-and-chats";
 import Peer from "../utils/peer";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";

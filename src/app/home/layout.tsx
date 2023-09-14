@@ -5,6 +5,10 @@ const inter = Inter({ subsets: ["latin"] });
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { RoomContextProvider } from "@/contexts/RoomContext";
+import {
+  HomeContext,
+  HomeContextProvider,
+} from "@/contexts/HomeRealTimeContext";
 
 export const metadata: Metadata = {
   title: "HomePage",
@@ -27,7 +31,7 @@ export default function RootLayout({
       <body className={inter.className}>
         {dom ? (
           <PersistLogin>
-            <RoomContextProvider>{children}</RoomContextProvider>
+            <HomeContextProvider>{children}</HomeContextProvider>
           </PersistLogin>
         ) : (
           <div> Loading </div>

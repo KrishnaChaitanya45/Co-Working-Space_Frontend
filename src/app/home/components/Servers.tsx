@@ -1,5 +1,11 @@
 "use client";
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, {
+  FormEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import Image from "next/image";
 import {
@@ -18,10 +24,14 @@ import { faArrowAltCircleDown } from "@fortawesome/free-regular-svg-icons";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   addServers,
+  deleteSelectedServer,
   deselectServer,
   selectServer,
+  updateServer,
 } from "@/redux/features/Servers";
 import Modal from "./PopUpModal";
+import { HomeContext } from "@/contexts/HomeRealTimeContext";
+import { useRouter } from "next/navigation";
 type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 export default function random() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,13 +39,16 @@ export default function random() {
   const [image, setImage] = useState(null);
   const { selectedServer, servers } = useAppSelector((state) => state.server);
   const dispatch = useAppDispatch();
+  const { auth } = useAppSelector((state) => state.auth);
   const inputRef = useRef(null);
   const [name, setName] = useState("");
+  const { socket } = useContext(HomeContext);
+  const Router = useRouter();
   const [serverSelected, setServerSelected] = useState(null);
   const [description, setDescription] = useState("");
   const axiosWithAccessToken = useAxiosPrivate();
   const submitButtonRef = useRef(null);
-  const [serversFetched, setServers] = useState(servers);
+  const [serversFetched, setServers] = useState([]);
   const [moreVisible, setMoreVisible] = useState(false);
   async function getServers() {
     try {
@@ -54,13 +67,79 @@ export default function random() {
       console.log(error);
     }
   }
+
+  async function fetchSingleServer() {
+    try {
+      const response = await axiosWithAccessToken.get(
+        `/server/${selectedServer.server._id}`
+      );
+      if (response.status == 200) {
+        let updatedServers = JSON.parse(JSON.stringify(selectedServer));
+        updatedServers.server = response.data.server;
+        dispatch(selectServer(updatedServers));
+      }
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   useEffect(() => {
     getServers();
   }, [isModalOpen]);
-
+  useEffect(() => {
+    if (serversFetched) {
+      setServers(servers);
+    }
+  }, [servers]);
+  useEffect(() => {
+    if (serverSelected) {
+      fetchSingleServer();
+    }
+  }, [serverSelected]);
   const openModal = () => {
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    socket.on(
+      "in-app-updates-notify",
+      ({ message, server, selectedServer }) => {
+        if (selectedServer && selectedServer.server) {
+          dispatch(selectServer(selectedServer));
+          dispatch(addServers([selectedServer]));
+          if (serversFetched.length > 0) {
+            //@ts-ignore
+            setServers(serversFetched.push(selectedServer));
+          } else {
+            //@ts-ignore
+            setServers([selectedServer]);
+          }
+          setServerSelected(selectedServer);
+          errorRef?.current?.(message);
+          setTimeout(() => {
+            Router.refresh();
+          }, 1000);
+        }
+      }
+    );
+    socket.on(
+      "user-removed-notify",
+      ({ message, server, serverId, removedUser }) => {
+        //@ts-ignore
+        //@ts-ignore
+        errorRef?.current?.(message);
+        if (removedUser._id == auth.user._id) {
+          dispatch(deleteSelectedServer(serverId));
+          socket.emit("leave-server", serverId);
+        } else {
+          dispatch(updateServer(server));
+        }
+      }
+    );
+    return () => {
+      socket.off("in-app-updates-notify");
+      socket.off("user-removed-notify");
+    };
+  }, [socket]);
   const closeModal = () => {
     setIsModalOpen(false);
     setName("");

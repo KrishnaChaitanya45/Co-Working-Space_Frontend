@@ -459,7 +459,7 @@ export default function Modal() {
                 stiffness: 100,
                 type: "spring",
               }}
-              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+              className={`w-[40px] xl:w-[3.0vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
                 isError ? "border-theme_red" : "border-white"
               }`}
             />
@@ -482,7 +482,7 @@ export default function Modal() {
                 stiffness: 100,
                 type: "spring",
               }}
-              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+              className={`w-[40px] xl:w-[3.0vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
                 isError ? "border-theme_red" : "border-white"
               }`}
             />
@@ -505,7 +505,7 @@ export default function Modal() {
                 stiffness: 100,
                 type: "spring",
               }}
-              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+              className={`w-[40px] xl:w-[3.0vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
                 isError ? "border-theme_red" : "border-white"
               }`}
             />
@@ -528,7 +528,7 @@ export default function Modal() {
                 stiffness: 100,
                 type: "spring",
               }}
-              className={`w-[40px] xl:w-[2.5vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
+              className={`w-[40px] xl:w-[3.0vw] h-[7.5vh] focus:border-theme_purple border-[5px] focus:outline-none text-[1.5vw] p-3 backdrop-blur-lg backdrop-brightness-200  bg-white/60 ${
                 isError ? "border-theme_red" : "border-white"
               }`}
             />

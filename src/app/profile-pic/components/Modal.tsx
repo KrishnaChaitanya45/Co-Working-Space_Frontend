@@ -61,7 +61,7 @@ export default function Modal() {
         type: image.type,
         name: `${auth.user?.name}'s-profile-picture.jpg}`,
       };
-      console.log(profileImage);
+
       formData.set("image", image);
       console.log(formData);
       const response = await axiosWithAccessToken.patch(
