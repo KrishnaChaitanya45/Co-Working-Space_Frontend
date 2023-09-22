@@ -17,7 +17,6 @@ import { motion } from "framer-motion";
 
 import Peer from "simple-peer";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { HomeContext } from "@/contexts/HomeRealTimeContext";
 import { RoomContext } from "@/contexts/RoomContext";
 
 const Audio = (props: any) => {
@@ -30,7 +29,7 @@ const Audio = (props: any) => {
     });
   }, []);
 
-  return <audio playsInline autoPlay ref={ref} controls />;
+  return <audio playsInline autoPlay ref={ref} />;
 };
 
 export default function AudioChannelPage() {
@@ -51,57 +50,68 @@ export default function AudioChannelPage() {
   }, [selectedChannel]);
   console.log("=== OUR VIDEO ===", ourVideo);
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      ourVideo.current.srcObject = stream;
-      socket.emit("join-mesh-audio-call", selectedChannel?._id);
-      socket.on("all-users-in-audio-call", (users: any) => {
-        const peers = [] as any;
-        users.forEach((userID: any) => {
-          const selectedUser =
-            selectedServer &&
-            selectedServer.server &&
-            selectedServer.server.users.find((u: any) => u.user._id == userID);
-          if (selectedUser) {
-            const peer = createPeer(
-              userID,
-              selectedUser._id,
-              stream,
-              selectedUser
-            );
-            usersRef.current.push({
-              peerID: userID,
-              peerDet: selectedUser,
-              peer,
-            });
-            peers.push(peer);
-          }
-        });
-        setUsers(peers);
-      });
+    if (selectedChannel)
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        selectedChannel && (ourVideo.current.srcObject = stream);
 
-      socket.on("user joined", (payload: any) => {
-        console.log("=== USER JOINED ===", payload);
-        const peer = addPeer(
-          payload.signal,
-          payload.callerID,
-          stream,
-          payload.userDet
-        );
-        usersRef.current.push({
-          peerID: payload.callerID,
-          peerDet: payload.userDet,
-          peer,
+        socket.emit("join-mesh-audio-call", {
+          channelId: selectedChannel?._id,
+          userId: auth.user._id,
+        });
+        socket.on("all-users-in-audio-call", (users: any) => {
+          const peers = [] as any;
+          users.forEach((userID: any) => {
+            const selectedUser =
+              selectedServer &&
+              selectedServer.server &&
+              selectedServer.server.users.find((u: any) => u.user._id == userID)
+                .user;
+            if (selectedUser) {
+              const peer = createPeer(
+                selectedChannel._id,
+                selectedUser._id,
+                stream,
+                selectedUser
+              );
+              usersRef.current.push({
+                peerID: userID,
+                peerDet: selectedUser,
+                peer,
+              });
+              peers.push({ peer: peer, userDet: selectedUser });
+            }
+          });
+          setUsers(peers);
         });
 
-        setUsers((users: any) => [...users, peer]);
-      });
+        socket.on("user-joined-audio", (payload: any) => {
+          console.log("=== USER JOINED ===", payload);
+          const peer = addPeer(
+            payload.signal,
+            payload.callerID,
+            stream,
+            payload.userDet
+          );
+          usersRef.current.push({
+            peerID: payload.callerID,
+            peerDet: payload.userDet,
+            peer,
+          });
 
-      socket.on("receiving returned signal-audio", (payload: any) => {
-        const item = usersRef.current.find((p: any) => p.peerID === payload.id);
-        item.peer.signal(payload.signal);
+          setUsers((users: any) => [
+            ...users,
+            { peer: peer, userDet: payload.userDet },
+          ]);
+        });
+
+        socket.on("receiving returned signal-audio", (payload: any) => {
+          const item = usersRef.current.find(
+            (p: any) => p.peerID === payload.id
+          );
+          item.peer.signal(payload.signal);
+        });
       });
-    });
-  }, [socket]);
+  }, [socket, selectedChannel]);
 
   let isUserLeadOrUser = false;
   if (selectedServer && selectedServer.server)
@@ -125,7 +135,7 @@ export default function AudioChannelPage() {
       trickle: false,
       stream,
     });
-
+    console.log("=== USR TO SIGNAL ===", userToSignal);
     peer.on("signal", (signal: any) => {
       socket.emit("sending signal-audio", {
         userToSignal,
@@ -158,6 +168,7 @@ export default function AudioChannelPage() {
 
     return peer;
   }
+  console.log("== USRES ===", users);
   console.log(selectedChannel);
   console.log(isUserLeadOrUser);
   let audioRef = React.createRef<HTMLVideoElement>();
@@ -249,6 +260,7 @@ export default function AudioChannelPage() {
             {users &&
               users.length > 0 &&
               users.map((peer: any, index: number) => {
+                console.log("== PEER ==", peer);
                 return (
                   <div className="bg-black/70 w-[40%] h-[50%] rounded-xl relative flex flex-col items-center shrink-0 mx-4 my-2 ">
                     <div className="flex  w-[100%] h-[25%] justify-between items-center p-4">
@@ -265,7 +277,11 @@ export default function AudioChannelPage() {
                     </div>
                     <div className="flex  w-[40%] h-[50%] justify-center items-center">
                       <img
-                        src="./assests/login_background.png"
+                        src={
+                          peer.userDet
+                            ? peer.userDet.profilePhoto
+                            : "./assests/login_background.png"
+                        }
                         alt="Image Failed"
                         className="w-[100%] h-[100%] object-cover rounded-[100%] "
                       />
@@ -277,9 +293,11 @@ export default function AudioChannelPage() {
                         </p>
                       </div>
                       <div className="px-3 py-1 rounded-[12px] bg-theme_purple/70 flex items-center justify-center ">
-                        <p className="text-white text-[1.2vw] ">Krishna</p>
+                        <p className="text-white text-[1.2vw] ">
+                          {peer.userDet ? peer.userDet.username : ""}
+                        </p>
                       </div>
-                      <Audio peer={peer} />
+                      <Audio peer={peer.peer} />
                     </div>
                   </div>
                 );
