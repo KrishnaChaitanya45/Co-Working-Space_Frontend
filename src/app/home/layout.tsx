@@ -10,10 +10,6 @@ import {
   HomeContextProvider,
 } from "@/contexts/HomeRealTimeContext";
 
-export const metadata: Metadata = {
-  title: "HomePage",
-  description: "This is the homepage",
-};
 const PersistLogin = dynamic(() => import("@/components/PersistLogin"), {
   ssr: false,
 });

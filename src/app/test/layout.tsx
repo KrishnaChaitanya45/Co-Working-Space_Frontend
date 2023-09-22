@@ -5,10 +5,7 @@ const inter = Inter({ subsets: ["latin"] });
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { RoomContextProvider } from "@/contexts/RoomContext";
-export const metadata: Metadata = {
-  title: "HomePage",
-  description: "This is the homepage",
-};
+
 const PersistLogin = dynamic(() => import("@/components/PersistLogin"), {
   ssr: false,
 });
