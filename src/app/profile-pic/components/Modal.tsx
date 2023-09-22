@@ -32,18 +32,18 @@ export default function Modal() {
   const errRef = useRef(null);
   const axiosWithAccessToken = useAxiosPrivate();
 
-  const auth = useAppSelector((state) => state.auth.auth);
+  const auth = useAppSelector((state) => state.auth.auth) as any;
   const refresh = useRefreshToken();
 
   console.log("== AUTH ==", auth);
 
-  const errorRef = useRef(null);
+  const errorRef = useRef<any>();
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [imageURL, setImageURL] = useState(null);
-  const [image, setImage] = useState(null);
+  const [imageURL, setImageURL] = useState<any>();
+  const [image, setImage] = useState<any>();
   const isMobile = navigator.userAgent.match("Mobile");
-  const inputRef = useRef(null);
+  const inputRef = useRef<any>();
   const selectImage = async (e: FormEvent<HTMLFormElement>) => {
     // e.preventDefault();
     inputRef?.current.click();
@@ -123,6 +123,7 @@ export default function Modal() {
         <div className="w-[100%] flex flex-col mt-[2rem] items-center justify-between">
           <div
             className="w-[15vw] h-[30vh] bg-[#D8F3F7]/50 rounded-[100%] flex items-center justify-center cursor-pointer"
+            //@ts-ignore
             onClick={selectImage}
           >
             {!imageURL ? (
@@ -140,7 +141,7 @@ export default function Modal() {
               type="file"
               id="file"
               ref={inputRef}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 if (!e.target.files[0]) return;
                 const image = e.target.files[0];
                 setImage(image);

@@ -31,7 +31,9 @@ export default function RootLayout({
       <body className={inter.className}>
         {dom ? (
           <PersistLogin>
-            <HomeContextProvider>{children}</HomeContextProvider>
+            <RoomContextProvider>
+              <HomeContextProvider>{children}</HomeContextProvider>
+            </RoomContextProvider>
           </PersistLogin>
         ) : (
           <div> Loading </div>

@@ -27,8 +27,8 @@ const montserrat = Montserrat({
 });
 type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 export default function Modal() {
-  const userRef = useRef(null);
-  const errRef = useRef(null);
+  const userRef = useRef<any>();
+  const errRef = useRef<any>();
   const axiosWithAccessToken = useAxiosPrivate();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [userId, setUserId] = useState("");
@@ -48,7 +48,7 @@ export default function Modal() {
     //@ts-ignore
     setErrorMessage("");
   }, [usernameOrEmail, password]);
-  const auth = useAppSelector((state) => state.auth.auth);
+  const auth = useAppSelector((state) => state.auth.auth) as any;
   const refresh = useRefreshToken();
   const handleKeyDown = (e: any, index: number) => {
     if (e.key === "Enter") {
@@ -93,11 +93,11 @@ export default function Modal() {
     if (ref && !inputRefs.current.includes(ref)) {
       inputRefs.current.push(ref);
       if (index === inputRefs.current.length - 1) {
-        ref.onkeydown = (e) => handleKeyDown(e, index);
+        ref.onkeydown = (e: any) => handleKeyDown(e, index);
       }
     }
   };
-  const errorRef = useRef(null);
+  const errorRef = useRef<any>();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -264,7 +264,7 @@ export default function Modal() {
         />
       </div>
       <motion.div
-        className=" w-[90%] md:w-[60%]  xl:h-[60%] absolute rounded-lg p-10 flex flex-col backdrop-blur-md backdrop-brightness-100  bg-black/30"
+        className=" w-[90%] md:w-[60%] absolute rounded-lg p-10 flex flex-col backdrop-blur-md backdrop-brightness-100  bg-black/30"
         animate={{
           top: "20%",
           opacity: 1,

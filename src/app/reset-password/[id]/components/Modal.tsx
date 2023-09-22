@@ -42,7 +42,7 @@ type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 export default function Modal() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const auth = useAppSelector((state) => state.auth.auth);
+  const auth = useAppSelector((state) => state.auth.auth) as any;
   console.log(auth);
   const userRef = useRef(null);
   const errorRef = useRef<null | AddFunction>(null);
@@ -186,7 +186,11 @@ export default function Modal() {
         initial={{ top: "0%", opacity: 0, left: "20%" }}
         transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
       >
-        <div aria-live="assertive" ref={errorRef}></div>
+        <div
+          aria-live="assertive"
+          //@ts-ignore
+          ref={errorRef}
+        ></div>
         <div
           className={`flex flex-col items-center justify-center ${poppins.className} gap-4`}
         >

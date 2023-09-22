@@ -39,12 +39,12 @@ export default function random() {
   const [image, setImage] = useState(null);
   const { selectedServer, servers } = useAppSelector((state) => state.server);
   const dispatch = useAppDispatch();
-  const { auth } = useAppSelector((state) => state.auth);
+  const { auth } = useAppSelector((state) => state.auth) as any;
   const inputRef = useRef(null);
   const [name, setName] = useState("");
   const { socket } = useContext(HomeContext);
   const Router = useRouter();
-  const [serverSelected, setServerSelected] = useState(null);
+  const [serverSelected, setServerSelected] = useState<any>();
   const [description, setDescription] = useState("");
   const axiosWithAccessToken = useAxiosPrivate();
   const submitButtonRef = useRef(null);
@@ -102,7 +102,7 @@ export default function random() {
   useEffect(() => {
     socket.on(
       "in-app-updates-notify",
-      ({ message, server, selectedServer }) => {
+      ({ message, server, selectedServer }: any) => {
         if (selectedServer && selectedServer.server) {
           dispatch(selectServer(selectedServer));
           dispatch(addServers([selectedServer]));
@@ -123,7 +123,7 @@ export default function random() {
     );
     socket.on(
       "user-removed-notify",
-      ({ message, server, serverId, removedUser }) => {
+      ({ message, server, serverId, removedUser }: any) => {
         //@ts-ignore
         //@ts-ignore
         errorRef?.current?.(message);
@@ -145,7 +145,7 @@ export default function random() {
     setName("");
     setDescription("");
   };
-  const errorRef = useRef(null);
+  const errorRef = useRef<any>();
   const handleSave = async () => {
     //@ts-ignore
     try {
@@ -164,7 +164,7 @@ export default function random() {
       }
       formData.append("serverName", name);
       formData.append("serverDescription", description);
-
+      //@ts-ignore
       formData.set("image", image);
       errorRef?.current?.({
         title: "We're Processing Your Request ⭐",
@@ -197,10 +197,11 @@ export default function random() {
   };
   const selectImage = async (e: FormEvent<HTMLFormElement>) => {
     // e.preventDefault();
+    //@ts-ignore
     inputRef?.current.click();
   };
   return (
-    <div className="bg-[#202225] p-[1%] h-[100%] flex flex-col items-center pt-[2.5%] pb-[2.5%] justify-between  z-[100] ">
+    <div className="bg-[#202225] p-[1%] h-[100%] flex flex-col items-center pt-[2%] pb-[2.5%] justify-between  z-[100] ">
       <NotificationGenerator
         children={(add: AddFunction) => {
           errorRef.current = add;
@@ -342,6 +343,8 @@ export default function random() {
         imageURL={imageURL}
         inputRef={inputRef}
         name={name}
+        imageRequired={true}
+        //@ts-ignore
         selectImage={selectImage}
         setDescription={setDescription}
         setImage={setImage}
@@ -352,7 +355,7 @@ export default function random() {
       <div>
         <div className="flex flex-col items-center justify-center gap-[2.5vh]">
           <motion.div
-            className="bg-[#36393F] w-[3.5vw] h-[7.5vh] rounded-[100%] flex items-center justify-center"
+            className="bg-[#36393F] w-[3.5vw] h-[7.5vh] rounded-[100%] flex items-center justify-center cursor-pointer"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -361,7 +364,7 @@ export default function random() {
             </div>
           </motion.div>
           <motion.div
-            className="bg-[#36393F] w-[3.5vw] h-[7.5vh] rounded-[100%] flex items-center justify-center"
+            className="bg-[#36393F] w-[3.5vw] h-[7.5vh] rounded-[100%] flex items-center justify-center cursor-pointer"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >

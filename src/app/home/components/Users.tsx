@@ -86,7 +86,7 @@ const Users = (
                 selectedServer.server.users[index].user._id != auth
             ) && (
               <motion.div
-                className="flex flex-col justify-center items-center left-[120%] top-[-100%] absolute  bg-black rounded-md shadow-md"
+                className="flex flex-col justify-center items-center right-[150%] top-[-100%] absolute  bg-black rounded-md shadow-md"
                 initial={{
                   opacity: 0,
                   scale: 0.5,

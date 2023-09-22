@@ -1,9 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import Navbar from "./components/Navbar";
+import Navbar from "../components/Navbar";
 import { Poppins } from "next/font/google";
 import Channel from "./components/Channels";
+import ChannelPage from "./components/ChatPages/TextChannelPage";
+import AudioChannelPage from "./components/ChatPages/AudioChannel";
+import { useAppSelector } from "@/redux/hooks";
 const Servers = dynamic(() => import("./components/Servers"), {
   ssr: false,
 });
@@ -15,14 +18,22 @@ const poppins = Poppins({
 });
 const WS = "http://localhost:5000";
 const page = () => {
+  const selectedTextChannel = useAppSelector(
+    (state) => state.server.selectedTextChannel
+  );
+  const selectedAudioChannel = useAppSelector(
+    (state) => state.server.selectedTextChannel
+  );
   useEffect(() => {}, []);
   return (
     <div
-      className={`bg-[#37393F] w-full h-[100vh] overflow-auto flex relative ${poppins.className}`}
+      className={`bg-[#37393F] justify-between w-[100vw] h-[100vh] overflow-hidden flex relative ${poppins.className}`}
     >
       {" "}
       <Servers />
       <Channel />
+      {selectedTextChannel && <ChannelPage />}
+      {!selectedTextChannel && <AudioChannelPage />}
       <Navbar />
     </div>
   );

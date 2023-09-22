@@ -4,6 +4,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Accordion, useAccordion } from "@/utils/Accordian";
 import { Poppins } from "next/font/google";
+import PopUpModal from "./PopUpModal";
 import {
   FontAwesomeIcon,
   FontAwesomeIconProps,
@@ -11,6 +12,8 @@ import {
 import {
   faChevronDown,
   faChevronUp,
+  faLock,
+  faLockOpen,
   faPlus,
   faSun,
   faUser,
@@ -21,13 +24,20 @@ import Modal from "./PopUpModal";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import NotificationGenerator from "@/components/ToastMessage";
 import {
+  addAudioChannel,
+  addChannels,
   addServers,
+  addTextChannel,
+  selectTextChannel,
   selectServer,
   updateServer,
 } from "@/redux/features/Servers";
 import { HomeContext } from "@/contexts/HomeRealTimeContext";
 import SearchUsersModal from "./SearchUsersModal";
 import { useRouter } from "next/navigation";
+import TextChannels from "./Channels/TextChannels";
+import AudioChannel from "./Channels/AudioChannel";
+import VideoChannel from "./Channels/VideoChannel";
 const poppins = Poppins({
   display: "swap",
   subsets: ["latin"],
@@ -47,22 +57,31 @@ function AccordionItem({ children }: { children: any }) {
 function AccordionHeader({
   title,
   icon,
+  type,
+  isAdminOrManager,
+  createChannelModalOpen,
+  setCreateChannelModalOpen,
 }: {
   title: string;
+  type: string;
+  isAdminOrManager: boolean;
   icon?: FontAwesomeIconProps;
+  createChannelModalOpen: any;
+  setCreateChannelModalOpen: any;
 }) {
   //@ts-ignore
   const { isActive, index, onChangeIndex } = useAccordion();
-
   return (
     <motion.div
       className={`p-[20px] cursor-pointer transition-colors ease-in-out  duration-150 ${
         isActive ? "bg-[#202225]" : "bg-transparent"
       }`}
-      onClick={() => onChangeIndex(index)}
     >
       <div className="flex justify-between items-center">
-        <div className="flex gap-4 items-center">
+        <div
+          className="flex gap-4 items-center"
+          onClick={() => onChangeIndex(index)}
+        >
           <FontAwesomeIcon
             icon={!isActive ? faChevronDown : faChevronUp}
             className="text-[14px]"
@@ -70,50 +89,61 @@ function AccordionHeader({
           <p className="text-white/70 text-[1vw]">{title}</p>
         </div>
 
-        <div>
-          <FontAwesomeIcon icon={faPlus} />
-        </div>
+        {isAdminOrManager && (
+          <div
+            onClick={() => {
+              setCreateChannelModalOpen((prev: any) => ({
+                ...prev,
+                [type]: true,
+              }));
+            }}
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </div>
+        )}
       </div>
     </motion.div>
   );
 }
 
-function AccordionPanel({ children }) {
+function AccordionPanel({ Elem }: { Elem: any }) {
   //@ts-ignore
   const { isActive } = useAccordion();
 
   return (
-    <AnimatePresence initial={false}>
-      {isActive && (
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: "auto" }}
-          exit={{ height: 0 }}
-          transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-        >
-          <div className=" p-[20px] bg-[#4F545C] ">{children}</div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <>
+      <Elem isActive={isActive} />
+    </>
   );
 }
 
 const Channel = () => {
   const axiosWithAccessToken = useAxiosPrivate();
-  const selectedServer = useAppSelector((state) => state.server.selectedServer);
+  const selectedServer = useAppSelector(
+    (state) => state.server.selectedServer
+  ) as any;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeModal = () => setIsModalOpen(false);
-  const [image, setImage] = useState(null);
-  const errorRef = React.useRef(null);
+  const [image, setImage] = useState<any>();
+  const errorRef = React.useRef<any>();
+  const [isRestricted, setIsRestricted] = useState(false);
+  const [channelName, setChannelName] = useState("");
+  const [channelDescription, setChannelDescription] = useState("");
   const Router = useRouter();
   const [users, setUsers] = useState([]);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isOpenOptions, setIsOpenOptions] = useState([]);
   const inputRef = React.useRef(null);
+  const [createChannelModalOpen, setCreateChannelModalOpen] = useState({
+    textChannel: false,
+    audioChannel: false,
+    videoChannel: false,
+  });
   const dispatch = useAppDispatch();
   const { socket } = useContext(HomeContext);
   const submitButtonRef = React.useRef(null);
   const selectImage = () => {
+    //@ts-ignore
     inputRef.current.click();
   };
   const handleSave = async () => {
@@ -194,10 +224,19 @@ const Channel = () => {
       }
     });
 
+    socket.on("channel-created-notify", ({ message, server, channel }: any) => {
+      errorRef?.current?.(message);
+      let updatedServer = JSON.parse(JSON.stringify(selectedServer));
+      dispatch(addTextChannel(channel));
+      updatedServer.server = server;
+      dispatch(selectServer(updatedServer));
+    });
+
     return () => {
       socket.off("group-det-changed-update");
       socket.off("user-promoted-notify");
       socket.off("user-added-notify");
+      socket.off("channel-created-notify");
     };
   }, [socket, selectedServer]);
 
@@ -222,7 +261,7 @@ const Channel = () => {
       ? selectedServer.server.serverDescription
       : ""
   );
-  const { auth } = useAppSelector((state) => state.auth);
+  const { auth } = useAppSelector((state) => state.auth) as any;
 
   const handlePromoteOrDemote = async (role: string, userId: string) => {
     console.log(userId);
@@ -304,7 +343,7 @@ const Channel = () => {
         }
       }
       console.log("== RESPONSE ==", response);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       if (error.response)
         errorRef?.current?.({
@@ -325,30 +364,65 @@ const Channel = () => {
     selectedServer.server &&
     auth &&
     auth.user &&
-    selectedServer.server.users.find((u) => {
+    selectedServer.server.users.find((u: any) => {
       //@ts-ignore
       if (u.user._id == auth.user._id) {
         return u;
       }
     }) &&
-    selectedServer.server.users.find((u) => {
+    selectedServer.server.users.find((u: any) => {
       //@ts-ignore
       if (u.user._id == auth.user._id) {
         return u;
       }
     }).roleId &&
-    (selectedServer.server.users.find((u) => {
+    (selectedServer.server.users.find((u: any) => {
       //@ts-ignore
       if (u.user._id == auth.user._id) {
         return u;
       }
     }).roleId.Admin > 9000 ||
-      selectedServer.server.users.find((u) => {
+      selectedServer.server.users.find((u: any) => {
         //@ts-ignore
         if (u.user._id == auth.user._id) {
           return u;
         }
       }).roleId.Manager > 8000);
+  let isAdmin_Or_Manager_Or_Lead =
+    selectedServer &&
+    selectedServer.server &&
+    auth &&
+    auth.user &&
+    selectedServer.server.users.find((u: any) => {
+      //@ts-ignore
+      if (u.user._id == auth.user._id) {
+        return u;
+      }
+    }) &&
+    selectedServer.server.users.find((u: any) => {
+      //@ts-ignore
+      if (u.user._id == auth.user._id) {
+        return u;
+      }
+    }).roleId &&
+    (selectedServer.server.users.find((u: any) => {
+      //@ts-ignore
+      if (u.user._id == auth.user._id) {
+        return u;
+      }
+    }).roleId.Admin > 9000 ||
+      selectedServer.server.users.find((u: any) => {
+        //@ts-ignore
+        if (u.user._id == auth.user._id) {
+          return u;
+        }
+      }).roleId.Manager > 8000 ||
+      selectedServer.server.users.find((u: any) => {
+        //@ts-ignore
+        if (u.user._id == auth.user._id) {
+          return u;
+        }
+      }).roleId.Lead > 7000);
   const [searchUserValue, setSearchUserValue] = useState("");
   const debounce = (func: any, timer: any) => {
     let timeout: any;
@@ -426,9 +500,9 @@ const Channel = () => {
     } catch (error: any) {
       if (error.response)
         errorRef?.current?.({
-          title: response.data.title,
-          msg: response.data.message,
-          type: Response.data.type,
+          title: error.response.data.title,
+          msg: error.response.data.message,
+          type: error.data.type,
         });
       else
         errorRef?.current?.({
@@ -438,10 +512,116 @@ const Channel = () => {
         });
     }
   };
+  const closeCreateChannelModal = () => {
+    setCreateChannelModalOpen({
+      textChannel: false,
+      audioChannel: false,
+      videoChannel: false,
+    });
+  };
+
+  const createChannel = async () => {
+    try {
+      console.log(" === isRestricted === ", isRestricted);
+      console.log(" === createChannelModalOpen === ", createChannelModalOpen);
+      if (createChannelModalOpen.textChannel) {
+        errorRef?.current?.({
+          title: "We're Processing Your Request ⭐",
+          msg: "We've send a request to the server to create the channel",
+          type: "info",
+        });
+        const response = await axiosWithAccessToken.post(`/channel/`, {
+          channelName,
+          channelDescription,
+          serverId: selectedServer.server._id,
+          restrictAccess: isRestricted,
+        });
+        console.log(response);
+        if (response.status == 201) {
+          socket.emit("channel-created", {
+            serverId: selectedServer.server._id,
+            server: response.data.server,
+            channel: response.data.channel,
+            message: {
+              title: `New Channel ${response.data.channel.channelName} Has Been Created!! 🥳`,
+              msg: `Checkout the new channel ${response.data.channel.channelName} in ${selectedServer.server.serverName} server`,
+              type: "success",
+            },
+          });
+          let updatedServer = JSON.parse(JSON.stringify(selectedServer));
+          updatedServer.server = response.data.server;
+          console.log("== UPDTED SERVERS USERS ==", updatedServer.server);
+          dispatch(selectServer(updatedServer));
+          dispatch(addTextChannel(response.data.channel));
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        } else {
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        }
+        closeCreateChannelModal();
+      } else if (createChannelModalOpen.audioChannel) {
+        errorRef?.current?.({
+          title: "We're Processing Your Request ⭐",
+          msg: "We've send a request to the server to create the channel",
+          type: "info",
+        });
+        const response = await axiosWithAccessToken.post(
+          `/channel?type=audio`,
+          {
+            channelName,
+            channelDescription,
+            serverId: selectedServer.server._id,
+            restrictAccess: isRestricted,
+          }
+        );
+        console.log(response);
+        if (response.status == 201) {
+          socket.emit("channel-created", {
+            serverId: selectedServer.server._id,
+            server: response.data.server,
+            channel: response.data.channel,
+            message: {
+              title: `New Channel ${response.data.channel.channelName} Has Been Created!! 🥳`,
+              msg: `Checkout the new channel ${response.data.channel.channelName} in ${selectedServer.server.serverName} server`,
+              type: "success",
+            },
+          });
+          let updatedServer = JSON.parse(JSON.stringify(selectedServer));
+          updatedServer.server = response.data.server;
+          console.log("== UPDTED SERVERS USERS ==", updatedServer.server);
+          dispatch(selectServer(updatedServer));
+          dispatch(addAudioChannel(response.data.channel));
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        } else {
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        }
+        closeCreateChannelModal();
+      } else {
+        console.log("REACHED HERE");
+      }
+    } catch (error) {
+      console.log("ERROR WHILE CREATING THE SERVER", error);
+    }
+  };
   const debouncedFunction = useCallback(debounce(handleSearchUser, 500), []);
   return (
     <div
-      className={`bg-[#2E3036] w-[30%] h-[100%] pt-[2.5%] pb-[2.5%] flex  flex-col text-blue-50 ${poppins.className} `}
+      className={`bg-[#2E3036] w-[30%] h-[100%] overflow-auto pt-[2%] pb-[2.5%] flex  flex-col text-blue-50 ${poppins.className} `}
     >
       <NotificationGenerator
         children={(add: AddFunction) => {
@@ -480,6 +660,7 @@ const Channel = () => {
           imageURL={imageURL}
           inputRef={inputRef}
           name={name}
+          imageRequired={true}
           selectImage={selectImage}
           setDescription={setDescription}
           setImage={setImage}
@@ -500,24 +681,37 @@ const Channel = () => {
       />
       <div>
         {selectedServer && selectedServer.server && (
+          //@ts-ignore
           <Accordion multiple>
             {[
               {
                 title: "TEXT CHANNELS",
-                content: "TEXT CHANNEL",
+                content: TextChannels,
+                type: "textChannel",
               },
 
-              { title: "AUDIO CHANNELS", content: "AUDIO CHANNEL" },
+              {
+                title: "AUDIO CHANNELS",
+                content: AudioChannel,
+                type: "audioChannel",
+              },
 
               {
                 title: "VIDEO CHANNELS",
-                content: "VIDEO CHANNEL",
+                type: "videoChannel",
+                content: VideoChannel,
               },
             ].map((_, i) => (
               <AccordionItem key={i}>
-                <AccordionHeader title={_.title} />
+                <AccordionHeader
+                  title={_.title}
+                  type={_.type}
+                  isAdminOrManager={isAdmin_Or_Manager_Or_Lead}
+                  createChannelModalOpen={createChannelModalOpen}
+                  setCreateChannelModalOpen={setCreateChannelModalOpen}
+                />
 
-                <AccordionPanel>{_.content}</AccordionPanel>
+                <AccordionPanel Elem={_.content} />
               </AccordionItem>
             ))}
           </Accordion>
@@ -553,6 +747,24 @@ const Channel = () => {
             </motion.div>
           </div>
         </motion.div>
+        <PopUpModal
+          closeModal={closeCreateChannelModal}
+          name={channelName}
+          setName={setChannelName}
+          description={channelDescription}
+          isModalOpen={
+            createChannelModalOpen.textChannel ||
+            createChannelModalOpen.audioChannel ||
+            createChannelModalOpen.videoChannel
+          }
+          handleSave={createChannel}
+          isRestricted={isRestricted}
+          setIsRestricted={setIsRestricted}
+          type="createChannel"
+          isAdminOrManager={isAdmin}
+          setDescription={setChannelDescription}
+          imageRequired={false}
+        />
         <div className="flex flex-col gap-4 items-center justify-center w-[100%] ">
           {selectedServer &&
             selectedServer.server &&

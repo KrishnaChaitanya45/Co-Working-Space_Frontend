@@ -36,7 +36,7 @@ const Input = ({
   value: string;
   setValueFocus: any;
   isPassword?: boolean;
-  checkNeeded: boolean;
+  checkNeeded?: boolean;
   valueFocus: boolean;
   valueMessage: string;
   displayNeeded?: boolean;
