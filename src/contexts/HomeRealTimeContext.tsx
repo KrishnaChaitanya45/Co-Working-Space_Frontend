@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-const WS = "http://localhost:5000/realtime-updates";
+const WS = "https://co-working-space-backend.onrender.com/realtime-updates";
 export const HomeContext = createContext<null | any>(null);
 const socket = new (io as any)(WS, {
   transports: ["websocket"],
