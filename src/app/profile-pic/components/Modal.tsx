@@ -14,6 +14,7 @@ import NotificationGenerator from "@/components/ToastMessage";
 import { setAuth } from "@/redux/features/Auth";
 import useRefreshToken from "@/hooks/useRefreshToken";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { getNavigator } from "@/app/login/components/Modal";
 const poppins = Poppins({
   display: "swap",
   subsets: ["latin"],
@@ -42,7 +43,14 @@ export default function Modal() {
   const router = useRouter();
   const [imageURL, setImageURL] = useState<any>();
   const [image, setImage] = useState<any>();
-  const isMobile = navigator.userAgent.match("Mobile");
+
+  let isMobile = false;
+  useEffect(() => {
+    const navigator = getNavigator() as any;
+    if (navigator) {
+      isMobile = navigator.userAgent.match("Mobile");
+    }
+  }, []);
   const inputRef = useRef<any>();
   const selectImage = async (e: FormEvent<HTMLFormElement>) => {
     // e.preventDefault();

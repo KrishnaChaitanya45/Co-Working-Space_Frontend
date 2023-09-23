@@ -21,6 +21,7 @@ export const PeerActions = createSlice({
     ) => {
       //@ts-ignore
       console.log("addPeer", action.payload);
+      //@ts-ignore
       state.peer[action.payload.peerId] = {
         stream: action.payload.stream,
       };

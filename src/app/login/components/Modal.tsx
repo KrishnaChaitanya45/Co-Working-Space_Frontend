@@ -26,6 +26,11 @@ const montserrat = Montserrat({
   style: ["normal", "italic"],
 });
 type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
+
+export function getNavigator() {
+  const navigator = window.navigator as any;
+  return navigator;
+}
 export default function Modal() {
   const userRef = useRef<any>();
   const errRef = useRef<any>();
@@ -101,7 +106,11 @@ export default function Modal() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const isMobile = navigator.userAgent.match("Mobile");
+  let isMobile = false;
+  useEffect(() => {
+    const navigator = getNavigator();
+    isMobile = navigator.userAgent.match("Mobile");
+  }, []);
   const handleVerify = async () => {
     try {
       errorRef?.current?.({

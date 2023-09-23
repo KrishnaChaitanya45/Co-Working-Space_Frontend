@@ -7,8 +7,9 @@ import { useState, useEffect } from "react";
 const persistLogin = ({ children }: { children: any }) => {
   const [isLoading, setIsLoading] = useState(true);
   const refresh = useRefreshToken();
-  const auth = AppSelector((state) => state.auth.auth);
+  const auth = AppSelector((state) => state.auth.auth) as any;
   const dispatch = useAppDispatch();
+  //@ts-ignore
   useEffect(() => {
     let isMounted = true;
     const verifyRefreshToken = async () => {

@@ -7,7 +7,7 @@ import { AppSelector } from "@/redux/hooks";
 const useAxiosPrivate = () => {
   const refresh = useRefreshToken();
   //@ts-ignore
-  const { auth } = AppSelector((state) => state.auth);
+  const { auth } = AppSelector((state) => state.auth) as any;
   useEffect(() => {
     const requestInterceptors = axiosPrivate.interceptors.request.use(
       (request) => {

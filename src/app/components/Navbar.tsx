@@ -7,17 +7,21 @@ import React, { useContext, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import NotificationGenerator from "@/components/ToastMessage";
 import { HomeContext } from "@/contexts/HomeRealTimeContext";
-import { updateChannels, updateTextChannels } from "@/redux/features/Servers";
+import { updateTextChannels } from "@/redux/features/Servers";
 function Navbar() {
   const dispatch = useAppDispatch();
   const axiosWithAuth = useAxiosPrivate();
-  const [requestChannel, setRequestChannel] = React.useState(null);
+  const [requestChannel, setRequestChannel] = React.useState<any>();
   const { socket } = useContext(HomeContext);
   const [showNotification, setShowNotification] = React.useState(false);
   const [notifications, setNotifications] = React.useState([]);
-  const selectedChannel = AppSelector((state) => state.server.selectedChannel);
-  const auth = AppSelector((state) => state.auth.auth);
-  const selectedServer = AppSelector((state) => state.server.selectedServer);
+  const selectedChannel = AppSelector(
+    (state) => state.server.selectedChannel
+  ) as any;
+  const auth = AppSelector((state) => state.auth.auth) as any;
+  const selectedServer = AppSelector(
+    (state) => state.server.selectedServer
+  ) as any;
 
   const fetchJoinRequests = async () => {
     try {
@@ -36,7 +40,7 @@ function Navbar() {
     let isAdminOrManager = false;
     if (selectedServer) {
       console.log(selectedServer.server);
-      selectedServer.server.users.forEach((user) => {
+      selectedServer.server.users.forEach((user: any) => {
         if (user.user._id == auth.user._id) {
           if (user.roleId.Admin > 9000 || user.roleId.Manager > 8000) {
             isAdminOrManager = true;
@@ -50,23 +54,26 @@ function Navbar() {
   }, [selectedChannel, selectedServer]);
 
   useEffect(() => {
-    socket.on("channel-requested-notify", ({ serverId, request, channel }) => {
-      console.log("New Join Request", request);
-      setRequestChannel(channel);
-      //@ts-ignore
-      errorRef.current({
-        title: "New Join Request",
-        msg: `${request.user.username} has requested to join ${channel.channelName}`,
-        type: "success",
-      });
-      console.log(selectedServer);
+    socket.on(
+      "channel-requested-notify",
+      ({ serverId, request, channel }: any) => {
+        console.log("New Join Request", request);
+        setRequestChannel(channel);
+        //@ts-ignore
+        errorRef.current({
+          title: "New Join Request",
+          msg: `${request.user.username} has requested to join ${channel.channelName}`,
+          type: "success",
+        });
+        console.log(selectedServer);
 
-      //@ts-ignore
-      setNotifications((prev) => [...prev, request]);
-    });
+        //@ts-ignore
+        setNotifications((prev) => [...prev, request]);
+      }
+    );
     socket.on(
       "channel-accepted-or-rejected-notify",
-      ({ request, channelName, action }) => {
+      ({ request, channelName, action }: any) => {
         console.log("New Join Request", request);
         //@ts-ignore
         if (action > 5000) {
@@ -91,7 +98,7 @@ function Navbar() {
       socket.off("channel-request-accepted-notify");
     };
   }, [socket]);
-  let errorRef = React.useRef(null);
+  let errorRef = React.useRef<any>();
   const acceptOrRejectRequest = async (
     action: string,
     requestId: any,
@@ -259,6 +266,7 @@ function Navbar() {
                                     notification.user._id
                                   );
                                 }}
+                                //@ts-ignore
                                 initial={{
                                   y: [0, 0, 0, 0, 0, 0],
                                 }}

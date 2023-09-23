@@ -25,6 +25,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { setAuth } from "@/redux/features/Auth";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { getNavigator } from "@/app/login/components/Modal";
 
 const poppins = Poppins({
   display: "swap",
@@ -65,6 +66,7 @@ export default function Modal() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const navigator = getNavigator() as any;
     let isMobile = navigator.userAgent.includes("Mobile");
     if (isMobile) {
       setIsMobile(true);

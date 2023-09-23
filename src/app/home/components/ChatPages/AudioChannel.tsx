@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import Peer from "simple-peer";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { RoomContext } from "@/contexts/RoomContext";
+import { getNavigator } from "@/app/login/components/Modal";
 
 const Audio = (props: any) => {
   const ref = React.useRef<any>(null);
@@ -50,67 +51,72 @@ export default function AudioChannelPage() {
   }, [selectedChannel]);
   console.log("=== OUR VIDEO ===", ourVideo);
   useEffect(() => {
-    if (selectedChannel)
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        selectedChannel && (ourVideo.current.srcObject = stream);
+    if (selectedChannel) {
+      const navigator = getNavigator() as any;
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream: any) => {
+          selectedChannel && (ourVideo.current.srcObject = stream);
 
-        socket.emit("join-mesh-audio-call", {
-          channelId: selectedChannel?._id,
-          userId: auth.user._id,
-        });
-        socket.on("all-users-in-audio-call", (users: any) => {
-          const peers = [] as any;
-          users.forEach((userID: any) => {
-            const selectedUser =
-              selectedServer &&
-              selectedServer.server &&
-              selectedServer.server.users.find((u: any) => u.user._id == userID)
-                .user;
-            if (selectedUser) {
-              const peer = createPeer(
-                selectedChannel._id,
-                selectedUser._id,
-                stream,
-                selectedUser
-              );
-              usersRef.current.push({
-                peerID: userID,
-                peerDet: selectedUser,
-                peer,
-              });
-              peers.push({ peer: peer, userDet: selectedUser });
-            }
+          socket.emit("join-mesh-audio-call", {
+            channelId: selectedChannel?._id,
+            userId: auth.user._id,
           });
-          setUsers(peers);
-        });
-
-        socket.on("user-joined-audio", (payload: any) => {
-          console.log("=== USER JOINED ===", payload);
-          const peer = addPeer(
-            payload.signal,
-            payload.callerID,
-            stream,
-            payload.userDet
-          );
-          usersRef.current.push({
-            peerID: payload.callerID,
-            peerDet: payload.userDet,
-            peer,
+          socket.on("all-users-in-audio-call", (users: any) => {
+            const peers = [] as any;
+            users.forEach((userID: any) => {
+              const selectedUser =
+                selectedServer &&
+                selectedServer.server &&
+                selectedServer.server.users.find(
+                  (u: any) => u.user._id == userID
+                ).user;
+              if (selectedUser) {
+                const peer = createPeer(
+                  selectedChannel._id,
+                  selectedUser._id,
+                  stream,
+                  selectedUser
+                );
+                usersRef.current.push({
+                  peerID: userID,
+                  peerDet: selectedUser,
+                  peer,
+                });
+                peers.push({ peer: peer, userDet: selectedUser });
+              }
+            });
+            setUsers(peers);
           });
 
-          setUsers((users: any) => [
-            ...users,
-            { peer: peer, userDet: payload.userDet },
-          ]);
-        });
+          socket.on("user-joined-audio", (payload: any) => {
+            console.log("=== USER JOINED ===", payload);
+            const peer = addPeer(
+              payload.signal,
+              payload.callerID,
+              stream,
+              payload.userDet
+            );
+            usersRef.current.push({
+              peerID: payload.callerID,
+              peerDet: payload.userDet,
+              peer,
+            });
 
-        socket.on("receiving returned signal-audio", (payload: any) => {
-          const item = usersRef.current.find(
-            (p: any) => p.peerID === payload.id
-          );
-          item.peer.signal(payload.signal);
+            setUsers((users: any) => [
+              ...users,
+              { peer: peer, userDet: payload.userDet },
+            ]);
+          });
+
+          socket.on("receiving returned signal-audio", (payload: any) => {
+            const item = usersRef.current.find(
+              (p: any) => p.peerID === payload.id
+            );
+            item.peer.signal(payload.signal);
+          });
         });
-      });
+    }
   }, [socket, selectedChannel]);
 
   let isUserLeadOrUser = false;

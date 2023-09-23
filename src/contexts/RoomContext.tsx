@@ -3,10 +3,10 @@ import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 const WS = "https://co-working-space-backend.onrender.com/calls-and-chats";
-import Peer from "../utils/peer";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { addPeer } from "@/redux/features/PeerActions";
+import { getNavigator } from "@/app/login/components/Modal";
 export const RoomContext = createContext<null | any>(null);
 const socket = new (io as any)(WS, {
   transports: ["websocket"],
@@ -24,9 +24,10 @@ export function RoomContextProvider({
   useEffect(() => {
     const ourId = uuid();
     try {
+      const navigator = getNavigator() as any;
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
+        .then((stream: any) => {
           setStream(stream);
         });
     } catch (error) {
