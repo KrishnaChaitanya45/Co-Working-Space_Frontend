@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import NotificationGenerator from "@/components/ToastMessage";
 import { faArrowAltCircleDown } from "@fortawesome/free-regular-svg-icons";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import {
   addServers,
   deleteSelectedServer,
@@ -33,13 +33,13 @@ import Modal from "./PopUpModal";
 import { HomeContext } from "@/contexts/HomeRealTimeContext";
 import { useRouter } from "next/navigation";
 type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
-export default function random() {
+export default function Server() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageURL, setImageURL] = useState(null);
   const [image, setImage] = useState(null);
-  const { selectedServer, servers } = useAppSelector((state) => state.server);
+  const { selectedServer, servers } = AppSelector((state) => state.server);
   const dispatch = useAppDispatch();
-  const { auth } = useAppSelector((state) => state.auth) as any;
+  const { auth } = AppSelector((state) => state.auth) as any;
   const inputRef = useRef(null);
   const [name, setName] = useState("");
   const { socket } = useContext(HomeContext);
@@ -273,6 +273,7 @@ export default function random() {
                       : "opacity-50 border-transparent"
                   }`}
                   initial={{}}
+                  key={server.server._id}
                   animate={{
                     scale: serverSelected == server ? 1.1 : 1,
                     transition: {

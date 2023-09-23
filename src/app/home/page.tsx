@@ -6,7 +6,7 @@ import { Poppins } from "next/font/google";
 import Channel from "./components/Channels";
 import ChannelPage from "./components/ChatPages/TextChannelPage";
 import AudioChannelPage from "./components/ChatPages/AudioChannel";
-import { useAppSelector } from "@/redux/hooks";
+import { AppSelector } from "@/redux/hooks";
 const Servers = dynamic(() => import("./components/Servers"), {
   ssr: false,
 });
@@ -18,10 +18,10 @@ const poppins = Poppins({
 });
 const WS = "https://co-working-space-backend.onrender.com";
 const page = () => {
-  const selectedTextChannel = useAppSelector(
+  const selectedTextChannel = AppSelector(
     (state) => state.server.selectedTextChannel
   );
-  const selectedAudioChannel = useAppSelector(
+  const selectedAudioChannel = AppSelector(
     (state) => state.server.selectedTextChannel
   );
   useEffect(() => {}, []);

@@ -7,7 +7,7 @@ import {
   selectTextChannel,
   selectServer,
 } from "@/redux/features/Servers";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import React, { useContext, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,12 +16,12 @@ function TextChannels({ isActive }: { isActive: boolean }) {
   const dispatch = useAppDispatch();
   const axiosWithAccessToken = useAxiosPrivate();
   const { socket } = useContext(HomeContext);
-  const channels = useAppSelector((state) => state.server.channels);
+  const channels = AppSelector((state) => state.server.channels);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const auth = AppSelector((state) => state.auth.auth) as any;
   const [requestChannelId, setRequestChannelId] = useState("");
   const [message, setMessage] = useState("");
-  const selectedServer = useAppSelector((state) => state.server.selectedServer);
+  const selectedServer = AppSelector((state) => state.server.selectedServer);
   const [fetchedChannels, setFetchedChannels] = useState<any>([]);
   const [LoadingChannels, setLoadingChannels] = useState(true);
   console.log("== SELECTED SERVER ==", selectedServer);

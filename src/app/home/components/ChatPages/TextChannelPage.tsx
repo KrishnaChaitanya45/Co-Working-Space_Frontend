@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/redux/hooks";
+import { AppSelector } from "@/redux/hooks";
 import {
   faLock,
   faLockOpen,
@@ -13,14 +13,14 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { HomeContext } from "@/contexts/HomeRealTimeContext";
 import { RoomContext } from "@/contexts/RoomContext";
 export default function ChannelPage() {
-  const selectedChannel = useAppSelector(
+  const selectedChannel = AppSelector(
     (state) => state.server.selectedTextChannel
   );
   const [messages, setMessages] = useState<any>([]);
   const { socket } = useContext(RoomContext);
   const axiosWithAccessToken = useAxiosPrivate();
-  const selectedServer = useAppSelector((state) => state.server.selectedServer);
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const selectedServer = AppSelector((state) => state.server.selectedServer);
+  const auth = AppSelector((state) => state.auth.auth) as any;
   let isChannelRestricted = selectedChannel?.restrictAccess;
   useEffect(() => {
     isChannelRestricted = selectedChannel?.restrictAccess;

@@ -1,13 +1,13 @@
 "use client";
 
 import useRefreshToken from "@/hooks/useRefreshToken";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { useState, useEffect } from "react";
 
 const persistLogin = ({ children }: { children: any }) => {
   const [isLoading, setIsLoading] = useState(true);
   const refresh = useRefreshToken();
-  const auth = useAppSelector((state) => state.auth.auth);
+  const auth = AppSelector((state) => state.auth.auth);
   const dispatch = useAppDispatch();
   useEffect(() => {
     let isMounted = true;

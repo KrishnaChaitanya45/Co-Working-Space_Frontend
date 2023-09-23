@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/redux/hooks";
+import { AppSelector } from "@/redux/hooks";
 import {
   faArrowRightFromBracket,
   faEllipsis,
@@ -33,7 +33,7 @@ const Audio = (props: any) => {
 };
 
 export default function AudioChannelPage() {
-  const selectedChannel = useAppSelector(
+  const selectedChannel = AppSelector(
     (state) => state.server.selectedAudioChannel
   );
   const [messages, setMessages] = useState<any>([]);
@@ -42,8 +42,8 @@ export default function AudioChannelPage() {
   const usersRef = React.useRef<any>([]);
   const ourVideo = React.useRef<any>();
   const axiosWithAccessToken = useAxiosPrivate();
-  const selectedServer = useAppSelector((state) => state.server.selectedServer);
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const selectedServer = AppSelector((state) => state.server.selectedServer);
+  const auth = AppSelector((state) => state.auth.auth) as any;
   let isChannelRestricted = selectedChannel?.restrictAccess;
   useEffect(() => {
     isChannelRestricted = selectedChannel?.restrictAccess;

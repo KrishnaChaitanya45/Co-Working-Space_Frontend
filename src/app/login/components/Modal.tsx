@@ -8,7 +8,7 @@ import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
 import { axiosPrivate } from "@/api/axios";
 import { PASSWORD_REGEX } from "@/utils/userRegex";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import NotificationGenerator from "@/components/ToastMessage";
 import { setAuth } from "@/redux/features/Auth";
 import useRefreshToken from "@/hooks/useRefreshToken";
@@ -48,7 +48,7 @@ export default function Modal() {
     //@ts-ignore
     setErrorMessage("");
   }, [usernameOrEmail, password]);
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const auth = AppSelector((state) => state.auth.auth) as any;
   const refresh = useRefreshToken();
   const handleKeyDown = (e: any, index: number) => {
     if (e.key === "Enter") {

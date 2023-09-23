@@ -1,11 +1,11 @@
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import axios from "../api/axios";
 import { setAuth } from "@/redux/features/Auth";
 import { useRouter } from "next/navigation";
 const useRefreshToken = () => {
   //@ts-ignore
   const router = useRouter();
-  const auth = useAppSelector((state) => state.auth.auth);
+  const auth = AppSelector((state) => state.auth.auth);
   const dispatch = useAppDispatch();
   const refresh = async () => {
     try {

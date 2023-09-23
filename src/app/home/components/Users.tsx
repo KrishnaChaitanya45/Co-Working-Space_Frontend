@@ -28,6 +28,7 @@ const Users = (
             ? "bg-theme_yellow/60"
             : "bg-transparent"
         }`}
+        key={user.user._id}
       >
         <div className="flex items-center gap-4">
           <div className="bg-[#202225] w-[3vw] h-[6vh] rounded-[100%] flex items-center justify-center">

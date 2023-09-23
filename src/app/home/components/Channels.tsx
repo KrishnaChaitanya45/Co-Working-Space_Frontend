@@ -19,7 +19,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Users from "./Users";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import Modal from "./PopUpModal";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import NotificationGenerator from "@/components/ToastMessage";
@@ -119,7 +119,7 @@ function AccordionPanel({ Elem }: { Elem: any }) {
 
 const Channel = () => {
   const axiosWithAccessToken = useAxiosPrivate();
-  const selectedServer = useAppSelector(
+  const selectedServer = AppSelector(
     (state) => state.server.selectedServer
   ) as any;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -261,7 +261,7 @@ const Channel = () => {
       ? selectedServer.server.serverDescription
       : ""
   );
-  const { auth } = useAppSelector((state) => state.auth) as any;
+  const { auth } = AppSelector((state) => state.auth) as any;
 
   const handlePromoteOrDemote = async (role: string, userId: string) => {
     console.log(userId);

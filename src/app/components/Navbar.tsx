@@ -1,5 +1,5 @@
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { faBell, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
@@ -15,11 +15,9 @@ function Navbar() {
   const { socket } = useContext(HomeContext);
   const [showNotification, setShowNotification] = React.useState(false);
   const [notifications, setNotifications] = React.useState([]);
-  const selectedChannel = useAppSelector(
-    (state) => state.server.selectedChannel
-  );
-  const auth = useAppSelector((state) => state.auth.auth);
-  const selectedServer = useAppSelector((state) => state.server.selectedServer);
+  const selectedChannel = AppSelector((state) => state.server.selectedChannel);
+  const auth = AppSelector((state) => state.auth.auth);
+  const selectedServer = AppSelector((state) => state.server.selectedServer);
 
   const fetchJoinRequests = async () => {
     try {

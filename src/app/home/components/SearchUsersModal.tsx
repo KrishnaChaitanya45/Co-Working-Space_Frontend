@@ -76,7 +76,10 @@ export default function SearchUsersModal({
             <div className="w-[100%]  flex flex-col gap-4">
               {users && users.length > 0 ? (
                 users.map((user: any, index: number) => (
-                  <div className="flex items-center p-5 gap-[5%] w-[100%] justify-between hover:bg-theme_gray/70">
+                  <div
+                    className="flex items-center p-5 gap-[5%] w-[100%] justify-between hover:bg-theme_gray/70"
+                    key={user._id}
+                  >
                     <div className="flex items-center gap-[5%] w-[100%] justify-start hover:bg-theme_gray/70">
                       <img
                         src={user.profilePhoto}

@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 const WS = "https://co-working-space-backend.onrender.com/calls-and-chats";
 import Peer from "../utils/peer";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { addPeer } from "@/redux/features/PeerActions";
 export const RoomContext = createContext<null | any>(null);
 const socket = new (io as any)(WS, {
@@ -18,7 +18,7 @@ export function RoomContextProvider({
 }) {
   const navigate = useRouter();
   const dispatch = useAppDispatch();
-  const { peer } = useAppSelector((state) => state.peer);
+  const { peer } = AppSelector((state) => state.peer);
   const [currentPeer, setCurrentPeer] = useState<any>(null);
   const [stream, setStream] = useState<MediaStream>();
   useEffect(() => {

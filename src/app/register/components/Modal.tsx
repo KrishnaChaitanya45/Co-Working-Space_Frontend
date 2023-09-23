@@ -22,7 +22,7 @@ import Input from "@/components/Input";
 import NotificationGenerator from "@/components/ToastMessage";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { setAuth } from "@/redux/features/Auth";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
@@ -42,7 +42,7 @@ type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 export default function Modal() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const auth = AppSelector((state) => state.auth.auth) as any;
   console.log(auth);
   const userRef = useRef(null);
   const errorRef = useRef<null | AddFunction>(null);

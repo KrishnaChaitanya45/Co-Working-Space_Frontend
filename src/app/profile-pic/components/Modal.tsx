@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { axiosPrivate } from "@/api/axios";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import NotificationGenerator from "@/components/ToastMessage";
 import { setAuth } from "@/redux/features/Auth";
 import useRefreshToken from "@/hooks/useRefreshToken";
@@ -32,7 +32,7 @@ export default function Modal() {
   const errRef = useRef(null);
   const axiosWithAccessToken = useAxiosPrivate();
 
-  const auth = useAppSelector((state) => state.auth.auth) as any;
+  const auth = AppSelector((state) => state.auth.auth) as any;
   const refresh = useRefreshToken();
 
   console.log("== AUTH ==", auth);
