@@ -16,7 +16,7 @@ const poppins = Poppins({
   weight: ["400", "600", "700"],
   style: ["normal", "italic"],
 });
-const WS = "https://co-working-space-backend.onrender.com";
+const WS = "http://localhost:5000";
 const page = () => {
   const selectedTextChannel = AppSelector(
     (state) => state.server.selectedTextChannel

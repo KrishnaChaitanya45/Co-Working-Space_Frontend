@@ -46,7 +46,7 @@ const poppins = Poppins({
 });
 type AddFunction = (msg: { msg: string; title: string; type: string }) => void;
 
-function AccordionItem({ children }: { children: any }) {
+export function AccordionItem({ children }: { children: any }) {
   return (
     <div className="rounded-[8px] overflow-hidden mb-[20px] bg-transparent">
       {children}
@@ -54,7 +54,7 @@ function AccordionItem({ children }: { children: any }) {
   );
 }
 
-function AccordionHeader({
+export function AccordionHeader({
   title,
   icon,
   type,
@@ -106,7 +106,7 @@ function AccordionHeader({
   );
 }
 
-function AccordionPanel({ Elem }: { Elem: any }) {
+export function AccordionPanel({ Elem }: { Elem: any }) {
   //@ts-ignore
   const { isActive } = useAccordion();
 
