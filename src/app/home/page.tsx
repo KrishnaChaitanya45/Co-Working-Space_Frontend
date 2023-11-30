@@ -6,6 +6,7 @@ import { Poppins } from "next/font/google";
 import Channel from "./components/Channels";
 import ChannelPage from "./components/ChatPages/TextChannelPage";
 import AudioChannelPage from "./components/ChatPages/AudioChannel";
+import VideoChannelPage from "./components/ChatPages/VideoChannelPage";
 import { AppSelector } from "@/redux/hooks";
 const Servers = dynamic(() => import("./components/Servers"), {
   ssr: false,
@@ -16,13 +17,16 @@ const poppins = Poppins({
   weight: ["400", "600", "700"],
   style: ["normal", "italic"],
 });
-const WS = "https://co-working-space-backend.onrender.com";
+const WS = "http://localhost:5000";
 const page = () => {
   const selectedTextChannel = AppSelector(
     (state) => state.server.selectedTextChannel
   );
   const selectedAudioChannel = AppSelector(
-    (state) => state.server.selectedTextChannel
+    (state) => state.server.selectedAudioChannel
+  );
+  const selectedVideoChannel = AppSelector(
+    (state) => state.server.selectedVideoChannel
   );
   useEffect(() => {}, []);
   return (
@@ -33,7 +37,8 @@ const page = () => {
       <Servers />
       <Channel />
       {selectedTextChannel && <ChannelPage />}
-      {!selectedTextChannel && <AudioChannelPage />}
+      {selectedAudioChannel && <AudioChannelPage />}
+      {!selectedAudioChannel && !selectedTextChannel && <VideoChannelPage />}
       <Navbar />
     </div>
   );

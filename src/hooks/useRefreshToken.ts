@@ -3,7 +3,6 @@ import axios from "../api/axios";
 import { setAuth } from "@/redux/features/Auth";
 import { useRouter } from "next/navigation";
 const useRefreshToken = () => {
-  //@ts-ignore
   const router = useRouter();
   const auth = AppSelector((state) => state.auth.auth);
   const dispatch = useAppDispatch();

@@ -45,12 +45,9 @@ const Room = ({ params }: { params: { id: string } }) => {
   const roomID = params.id;
 
   useEffect(() => {
-    socketRef.current = new (io as any)(
-      "https://co-working-space-backend.onrender.com",
-      {
-        transports: ["websocket"],
-      }
-    );
+    socketRef.current = new (io as any)("http://localhost:5000", {
+      transports: ["websocket"],
+    });
     const navigator = getNavigator() as any;
     navigator.mediaDevices
       .getUserMedia({ video: videoConstraints, audio: true })

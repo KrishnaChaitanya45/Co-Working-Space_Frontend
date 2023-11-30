@@ -31,6 +31,7 @@ import {
   selectTextChannel,
   selectServer,
   updateServer,
+  addVideoChannel,
 } from "@/redux/features/Servers";
 import { HomeContext } from "@/contexts/HomeRealTimeContext";
 import SearchUsersModal from "./SearchUsersModal";
@@ -612,7 +613,50 @@ const Channel = () => {
         }
         closeCreateChannelModal();
       } else {
-        console.log("REACHED HERE");
+        errorRef?.current?.({
+          title: "We're Processing Your Request ⭐",
+          msg: "We've send a request to the server to create the channel",
+          type: "info",
+        });
+        const response = await axiosWithAccessToken.post(
+          `/channel?type=video`,
+          {
+            channelName,
+            channelDescription,
+            serverId: selectedServer.server._id,
+            restrictAccess: isRestricted,
+          }
+        );
+        console.log(response);
+        if (response.status == 201) {
+          socket.emit("channel-created", {
+            serverId: selectedServer.server._id,
+            server: response.data.server,
+            channel: response.data.channel,
+            message: {
+              title: `New Channel ${response.data.channel.channelName} Has Been Created!! 🥳`,
+              msg: `Checkout the new channel ${response.data.channel.channelName} in ${selectedServer.server.serverName} server`,
+              type: "success",
+            },
+          });
+          let updatedServer = JSON.parse(JSON.stringify(selectedServer));
+          updatedServer.server = response.data.server;
+          console.log("== UPDTED SERVERS USERS ==", updatedServer.server);
+          dispatch(selectServer(updatedServer));
+          dispatch(addVideoChannel(response.data.channel));
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        } else {
+          errorRef?.current?.({
+            title: response.data.title,
+            msg: response.data.message,
+            type: "success",
+          });
+        }
+        closeCreateChannelModal();
       }
     } catch (error) {
       console.log("ERROR WHILE CREATING THE SERVER", error);

@@ -39,6 +39,13 @@ export const auth = createSlice({
         state.selectedVideoChannel = null;
       }
     },
+    selectVideoChannel: (state, action: PayloadAction<any>) => {
+      if (action.payload != null || action.payload != undefined) {
+        state.selectedVideoChannel = action.payload;
+        state.selectedTextChannel = null;
+        state.selectedAudioChannel = null;
+      }
+    },
     deselectAudioChannel: (state: any) => {
       state.selectedAudioChannel = null;
     },
@@ -58,6 +65,9 @@ export const auth = createSlice({
     },
     addAudioChannel: (state, action: PayloadAction<any>) => {
       state.channels.audioChannels = action.payload;
+    },
+    addVideoChannel: (state, action: PayloadAction<any>) => {
+      state.channels.videoChannels = action.payload;
     },
     updateTextChannels: (state, action: PayloadAction<any>) => {
       state.channels.textChannels = state.channels.textChannels.map(
@@ -105,7 +115,9 @@ export const {
   addNotification,
   addTextChannel,
   updateServer,
+  addVideoChannel,
   addAudioChannel,
   deleteSelectedServer,
+  selectVideoChannel,
 } = auth.actions;
 export default auth.reducer;

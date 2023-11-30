@@ -2,7 +2,7 @@
 import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuid } from "uuid";
-const WS = "https://co-working-space-backend.onrender.com/calls-and-chats";
+const WS = "http://localhost:5000/calls-and-chats";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, AppSelector } from "@/redux/hooks";
 import { addPeer } from "@/redux/features/PeerActions";

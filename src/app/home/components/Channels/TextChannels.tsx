@@ -75,12 +75,12 @@ function TextChannels({ isActive }: { isActive: boolean }) {
         setFetchedChannels(thisServerChannels);
     }
   }, [channels, selectedServer]);
-  const isUser = Boolean(
+  const isUser = !Boolean(
     selectedServer &&
       selectedServer.server &&
       selectedServer.server.users &&
       selectedServer.server.users.find((u: any) => {
-        //@ts-ignore
+        console.log("USER FROM SERVER", u);
         if (
           auth &&
           auth.user &&
@@ -94,6 +94,7 @@ function TextChannels({ isActive }: { isActive: boolean }) {
               (s: any) => s.server == selectedServer.server._id
             ).role.id.User
         ) {
+          console.log(auth.user.servers);
           return u;
         }
       })
@@ -131,6 +132,7 @@ function TextChannels({ isActive }: { isActive: boolean }) {
     setLoadingChannels(false);
   }, [isActive, selectedServer]);
   const errorRef = React.useRef(null);
+  console.log("=== IS USER ===", isUser);
   console.log("=== FETCHED CHANNELS ==", fetchedChannels);
   return (
     <>

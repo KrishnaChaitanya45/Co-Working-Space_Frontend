@@ -11,6 +11,7 @@ const Users = (
   auth: any,
   isAdmin: any
 ) => {
+  console.log(isOpenOptions);
   return (
     selectedServer &&
     selectedServer.server &&

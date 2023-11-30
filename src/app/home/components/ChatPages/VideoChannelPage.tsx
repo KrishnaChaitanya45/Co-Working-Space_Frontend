@@ -12,6 +12,8 @@ import {
   faPaperclip,
   faSun,
   faThumbTack,
+  faVideo,
+  faVideoSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -38,12 +40,12 @@ const Audio = (props: any) => {
     });
   }, []);
 
-  return <audio playsInline autoPlay ref={ref} />;
+  return <video playsInline autoPlay ref={ref} />;
 };
 
 export default function AudioChannelPage() {
   const selectedChannel = AppSelector(
-    (state) => state.server.selectedAudioChannel
+    (state) => state.server.selectedVideoChannel
   );
   const [messages, setMessages] = useState<any>([]);
   const [users, setUsers] = useState<any>([]);
@@ -57,6 +59,7 @@ export default function AudioChannelPage() {
   const [selectedAudioOutput, setSelectedAudioOutput] = useState<any>(null);
   const [stream, setStream] = useState<any>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isVideo, setIsVideo] = useState<boolean>(false);
   const axiosWithAccessToken = useAxiosPrivate();
   const selectedServer = AppSelector((state) => state.server.selectedServer);
   const auth = AppSelector((state) => state.auth.auth) as any;
@@ -69,6 +72,15 @@ export default function AudioChannelPage() {
     if (audioStream) {
       audioStream.enabled = !audioStream.enabled;
       setIsMuted(!audioStream.enabled);
+    }
+  };
+  const toggleVideo = () => {
+    const audioStream = stream.getTracks().find((t: any) => {
+      return t.kind == "video";
+    });
+    if (audioStream) {
+      audioStream.enabled = !audioStream.enabled;
+      setIsVideo(!audioStream.enabled);
     }
   };
 
@@ -101,7 +113,7 @@ export default function AudioChannelPage() {
         .then((result: any) => {
           if (result.state == "granted") {
             navigator.mediaDevices
-              .getUserMedia({ audio: true })
+              .getUserMedia({ audio: true, video: true })
               .then(async (stream: any) => {
                 setStream(stream);
                 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -340,18 +352,11 @@ export default function AudioChannelPage() {
                 </div>
                 <div className="flex mt-[2.5%] w-[90%] h-[90%] justify-center items-center flex-wrap gap-2">
                   <div className="bg-black/70 w-[40%] h-[50%] rounded-xl relative flex flex-col items-center justify-end py-2 shrink-0 mx-4 my-2 ">
-                    <div className="flex  w-[40%] h-[50%] justify-center items-center">
-                      <img
-                        src="./assests/login_background.png"
-                        alt="Image Failed"
-                        className="w-[100%] h-[100%] object-cover rounded-[100%] "
-                      />
-                    </div>
                     <div className="flex mt-[7.5%] w-[100%] justify-start px-4 gap-4">
-                      <div className="px-3 py-1 rounded-[12px] bg-theme_purple/70 flex items-center justify-center ">
+                      <div className="px-3 py-1 rounded-[12px] bg-theme_purple/70 flex items-center justify-center absolute bottom-0">
                         <p className="text-white text-[1.2vw] ">Krishna</p>
                       </div>
-                      <audio ref={ourVideo} autoPlay muted={true} />
+                      <video ref={ourVideo} autoPlay muted={true} />
                     </div>
                   </div>
                   {users &&
@@ -363,7 +368,7 @@ export default function AudioChannelPage() {
                           className="bg-black/70 w-[40%] h-[50%] rounded-xl relative flex flex-col items-center shrink-0 mx-4 my-2 "
                           key={peer.peer._id}
                         >
-                          <div className="flex  w-[100%] h-[25%] justify-between items-center p-4">
+                          <div className="flex  w-[100%] h-[25%] justify-between items-center p-4 absolute top-0">
                             <div className="px-3 py-1 rounded-[50%] bg-theme_purple/70 flex items-center justify-center ">
                               <p className="text-white text-[1.2vw] rotate-45">
                                 <FontAwesomeIcon icon={faThumbTack} />
@@ -375,29 +380,17 @@ export default function AudioChannelPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex  w-[40%] h-[50%] justify-center items-center">
-                            <img
-                              src={
-                                peer.userDet
-                                  ? peer.userDet.profilePhoto
-                                  : "./assests/login_background.png"
-                              }
-                              alt="Image Failed"
-                              className="w-[100%] h-[100%] object-cover rounded-[100%] "
-                            />
-                          </div>
-                          <div className="flex mt-[7.5%] w-[100%] justify-start px-4 gap-4">
-                            <div className="px-3 py-1 rounded-[50%] bg-theme_purple/70 flex items-center justify-center ">
-                              <p className="text-white text-[1.2vw] ">
-                                <FontAwesomeIcon icon={faMicrophone} />
-                              </p>
+                          <div className="bg-black/70 w-[100%] h-[100%] rounded-xl  flex flex-col items-center justify-end py-2 shrink-0 mx-4 my-2 absolute bottom-0 ">
+                            <div className="flex mt-[7.5%] w-[100%] h-[100%] justify-start px-4 gap-4">
+                              <div className="px-3 py-1 rounded-[12px] bg-theme_purple/70 flex items-center justify-center absolute bottom-0">
+                                <p className="text-white text-[1.2vw] ">
+                                  {peer.userDet ? peer.userDet.username : " "}
+                                </p>
+                              </div>
+                              <div className="w-[100%] h-[100%]">
+                                <Audio peer={peer.peer} />
+                              </div>
                             </div>
-                            <div className="px-3 py-1 rounded-[12px] bg-theme_purple/70 flex items-center justify-center ">
-                              <p className="text-white text-[1.2vw] ">
-                                {peer.userDet ? peer.userDet.username : ""}
-                              </p>
-                            </div>
-                            <Audio peer={peer.peer} />
                           </div>
                         </div>
                       );
@@ -444,6 +437,28 @@ export default function AudioChannelPage() {
                             icon={
                               isMuted ? faMicrophoneAltSlash : faMicrophoneAlt
                             }
+                          />
+                        </p>
+                      </motion.div>
+                      <motion.div
+                        className="px-3 py-1 rounded-[50%] bg-theme_purple/70 flex items-center justify-center cursor-pointer"
+                        whileTap={{
+                          scale: 0.9,
+                        }}
+                        whileHover={{
+                          scale: 1.1,
+                        }}
+                        onClick={() => {
+                          toggleVideo();
+                        }}
+                      >
+                        <p
+                          className={`${
+                            !isVideo ? "text-white" : "text-theme_red"
+                          } text-[1.2vw] `}
+                        >
+                          <FontAwesomeIcon
+                            icon={isVideo ? faVideoSlash : faVideo}
                           />
                         </p>
                       </motion.div>
